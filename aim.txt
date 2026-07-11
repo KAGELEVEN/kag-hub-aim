@@ -1,2 +1,1 @@
 loadstring(game:HttpGet("https://pastefy.app/zy26Zl5y/raw", true))()
-https://raw.githubusercontent.com/KAGELEVEN/kag-hub-aim/1c5e22cd92c06977efe253034af19658fa47ca9f/aim.txt
