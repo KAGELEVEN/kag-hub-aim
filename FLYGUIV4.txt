@@ -5,7 +5,7 @@ local down = Instance.new("TextButton")
 local onof = Instance.new("TextButton")
 local TextLabel = Instance.new("TextLabel")
 local plus = Instance.new("TextButton")
-local speed = Instance.new("TextBox") -- Đã đổi thành TextBox để nhập số
+local speed = Instance.new("TextBox")
 local mine = Instance.new("TextButton")
 local closebutton = Instance.new("TextButton")
 local mini = Instance.new("TextButton")
@@ -106,7 +106,7 @@ closebutton.Font = "SourceSans"
 closebutton.Size = UDim2.new(0, 45, 0, 28)
 closebutton.Text = "X"
 closebutton.TextSize = 30
-closebutton.Position = UDim2.new(0, 0, -1, 27)
+closebutton.Position =  UDim2.new(0, 0, -1, 27)
 
 mini.Name = "minimize"
 mini.Parent = main.Frame
@@ -130,6 +130,7 @@ mini2.Visible = false
 speeds = 1
 
 local speaker = game:GetService("Players").LocalPlayer
+
 local chr = game.Players.LocalPlayer.Character
 local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
 
@@ -141,42 +142,38 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 	Icon = "rbxthumb://type=Asset&id=5107182114&w=150&h=150"})
 Duration = 5;
 
-Frame.Active = true
+Frame.Active = true -- main = gui
 Frame.Draggable = true
 
--- Hàm cập nhật tốc độ bay khi đang bật fly
-local function updateSpeed()
-	if nowe == true then
-		tpwalking = false
-		for i = 1, speeds do
-			spawn(function()
-				local hb = game:GetService("RunService").Heartbeat	
-				tpwalking = true
-				local chr = game.Players.LocalPlayer.Character
-				local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
-				while tpwalking and hb:Wait() and chr and hum and hum.Parent do
-					if hum.MoveDirection.Magnitude > 0 then
-						chr:TranslateBy(hum.MoveDirection)
-					end
-				end
-			end)
-		end
-	end
-end
-
--- Xử lý khi nhập số trực tiếp vào ô speed
+-- Sự kiện xử lý nhập tốc độ trực tiếp vào TextBox
 speed.FocusLost:Connect(function()
 	local num = tonumber(speed.Text)
 	if num and num >= 1 then
 		speeds = math.floor(num)
 		speed.Text = tostring(speeds)
-		updateSpeed()
+		if nowe == true then
+			tpwalking = false
+			for i = 1, speeds do
+				spawn(function()
+					local hb = game:GetService("RunService").Heartbeat	
+					tpwalking = true
+					local chr = game.Players.LocalPlayer.Character
+					local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+					while tpwalking and hb:Wait() and chr and hum and hum.Parent do
+						if hum.MoveDirection.Magnitude > 0 then
+							chr:TranslateBy(hum.MoveDirection)
+						end
+					end
+				end)
+			end
+		end
 	else
 		speed.Text = tostring(speeds)
 	end
 end)
 
 onof.MouseButton1Down:connect(function()
+
 	if nowe == true then
 		nowe = false
 
@@ -198,8 +195,23 @@ onof.MouseButton1Down:connect(function()
 		speaker.Character.Humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
 	else 
 		nowe = true
-		updateSpeed()
-		
+
+		for i = 1, speeds do
+			spawn(function()
+
+				local hb = game:GetService("RunService").Heartbeat	
+
+				tpwalking = true
+				local chr = game.Players.LocalPlayer.Character
+				local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+				while tpwalking and hb:Wait() and chr and hum and hum.Parent do
+					if hum.MoveDirection.Magnitude > 0 then
+						chr:TranslateBy(hum.MoveDirection)
+					end
+				end
+
+			end)
+		end
 		game.Players.LocalPlayer.Character.Animate.Disabled = true
 		local Char = game.Players.LocalPlayer.Character
 		local Hum = Char:FindFirstChildOfClass("Humanoid") or Char:FindFirstChildOfClass("AnimationController")
@@ -226,6 +238,7 @@ onof.MouseButton1Down:connect(function()
 	end
 
 	if game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid").RigType == Enum.HumanoidRigType.R6 then
+
 		local plr = game.Players.LocalPlayer
 		local torso = plr.Character.Torso
 		local flying = true
@@ -233,7 +246,7 @@ onof.MouseButton1Down:connect(function()
 		local ctrl = {f = 0, b = 0, l = 0, r = 0}
 		local lastctrl = {f = 0, b = 0, l = 0, r = 0}
 		local maxspeed = 50
-		local speedVal = 0
+		local speed = 0
 
 		local bg = Instance.new("BodyGyro", torso)
 		bg.P = 9e4
@@ -249,34 +262,35 @@ onof.MouseButton1Down:connect(function()
 			game:GetService("RunService").RenderStepped:Wait()
 
 			if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
-				speedVal = speedVal+.5+(speedVal/maxspeed)
-				if speedVal > maxspeed then
-					speedVal = maxspeed
+				speed = speed+.5+(speed/maxspeed)
+				if speed > maxspeed then
+					speed = maxspeed
 				end
-			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speedVal ~= 0 then
-				speedVal = speedVal-1
-				if speedVal < 0 then
-					speedVal = 0
+			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+				speed = speed-1
+				if speed < 0 then
+					speed = 0
 				end
 			end
 			if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
-				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speedVal
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
 				lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
-			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speedVal ~= 0 then
-				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speedVal
+			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
 			else
 				bv.velocity = Vector3.new(0,0,0)
 			end
-			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speedVal/maxspeed),0,0)
+			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
 		end
 		ctrl = {f = 0, b = 0, l = 0, r = 0}
 		lastctrl = {f = 0, b = 0, l = 0, r = 0}
-		speedVal = 0
+		speed = 0
 		bg:Destroy()
 		bv:Destroy()
 		plr.Character.Humanoid.PlatformStand = false
 		game.Players.LocalPlayer.Character.Animate.Disabled = false
 		tpwalking = false
+
 	else
 		local plr = game.Players.LocalPlayer
 		local UpperTorso = plr.Character.UpperTorso
@@ -285,7 +299,7 @@ onof.MouseButton1Down:connect(function()
 		local ctrl = {f = 0, b = 0, l = 0, r = 0}
 		local lastctrl = {f = 0, b = 0, l = 0, r = 0}
 		local maxspeed = 50
-		local speedVal = 0
+		local speed = 0
 
 		local bg = Instance.new("BodyGyro", UpperTorso)
 		bg.P = 9e4
@@ -301,36 +315,38 @@ onof.MouseButton1Down:connect(function()
 			wait()
 
 			if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
-				speedVal = speedVal+.5+(speedVal/maxspeed)
-				if speedVal > maxspeed then
-					speedVal = maxspeed
+				speed = speed+.5+(speed/maxspeed)
+				if speed > maxspeed then
+					speed = maxspeed
 				end
-			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speedVal ~= 0 then
-				speedVal = speedVal-1
-				if speedVal < 0 then
-					speedVal = 0
+			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+				speed = speed-1
+				if speed < 0 then
+					speed = 0
 				end
 			end
 			if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
-				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speedVal
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
 				lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
-			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speedVal ~= 0 then
-				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speedVal
+			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
 			else
 				bv.velocity = Vector3.new(0,0,0)
 			end
 
-			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speedVal/maxspeed),0,0)
+			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
 		end
 		ctrl = {f = 0, b = 0, l = 0, r = 0}
 		lastctrl = {f = 0, b = 0, l = 0, r = 0}
-		speedVal = 0
+		speed = 0
 		bg:Destroy()
 		bv:Destroy()
 		plr.Character.Humanoid.PlatformStand = false
 		game.Players.LocalPlayer.Character.Animate.Disabled = false
 		tpwalking = false
+
 	end
+
 end)
 
 local tis
@@ -373,12 +389,32 @@ game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(char)
 	wait(0.7)
 	game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
 	game.Players.LocalPlayer.Character.Animate.Disabled = false
+
 end)
 
 plus.MouseButton1Down:connect(function()
 	speeds = speeds + 1
 	speed.Text = tostring(speeds)
-	updateSpeed()
+	if nowe == true then
+
+		tpwalking = false
+		for i = 1, speeds do
+			spawn(function()
+
+				local hb = game:GetService("RunService").Heartbeat	
+
+				tpwalking = true
+				local chr = game.Players.LocalPlayer.Character
+				local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+				while tpwalking and hb:Wait() and chr and hum and hum.Parent do
+					if hum.MoveDirection.Magnitude > 0 then
+						chr:TranslateBy(hum.MoveDirection)
+					end
+				end
+
+			end)
+		end
+	end
 end)
 
 mine.MouseButton1Down:connect(function()
@@ -389,7 +425,25 @@ mine.MouseButton1Down:connect(function()
 	else
 		speeds = speeds - 1
 		speed.Text = tostring(speeds)
-		updateSpeed()
+		if nowe == true then
+			tpwalking = false
+			for i = 1, speeds do
+				spawn(function()
+
+					local hb = game:GetService("RunService").Heartbeat	
+
+					tpwalking = true
+					local chr = game.Players.LocalPlayer.Character
+					local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+					while tpwalking and hb:Wait() and chr and hum and hum.Parent do
+						if hum.MoveDirection.Magnitude > 0 then
+							chr:TranslateBy(hum.MoveDirection)
+						end
+					end
+
+				end)
+			end
+		end
 	end
 end)
 
@@ -407,7 +461,7 @@ mini.MouseButton1Click:Connect(function()
 	mini.Visible = false
 	mini2.Visible = true
 	main.Frame.BackgroundTransparency = 1
-	closebutton.Position = UDim2.new(0, 0, -1, 57)
+	closebutton.Position =  UDim2.new(0, 0, -1, 57)
 end)
 
 mini2.MouseButton1Click:Connect(function()
@@ -420,5 +474,5 @@ mini2.MouseButton1Click:Connect(function()
 	mini.Visible = true
 	mini2.Visible = false
 	main.Frame.BackgroundTransparency = 0 
-	closebutton.Position = UDim2.new(0, 0, -1, 27)
+	closebutton.Position =  UDim2.new(0, 0, -1, 27)
 end)
