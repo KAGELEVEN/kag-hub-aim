@@ -145,7 +145,6 @@ Duration = 5;
 Frame.Active = true -- main = gui
 Frame.Draggable = true
 
--- Sự kiện xử lý nhập tốc độ trực tiếp vào TextBox
 speed.FocusLost:Connect(function()
 	local num = tonumber(speed.Text)
 	if num and num >= 1 then
