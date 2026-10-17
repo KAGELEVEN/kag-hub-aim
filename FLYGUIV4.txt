@@ -1,1 +1,1 @@
-loadstring(game:HttpGet("https://pastefy.app/GLprmbqw"))()loadstring(game:HttpGet("https://raw.githubusercontent.com/KAGELEVEN/kag-hub-aim/refs/heads/main/FLYGUIV4.txt"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/KAGELEVEN/kag-hub-aim/refs/heads/main/FLYGUIV4.txt"))()
